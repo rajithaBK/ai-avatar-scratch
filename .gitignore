@@ -1,0 +1,39 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.venv/
+venv/
+
+# --- Node / Vite / Playwright ---
+node_modules/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+playwright-report/
+test-results/
+.playwright/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Demo runtime artifacts ---
+# We keep the directories (via .gitkeep) but ignore generated content.
+assets/audio/*.wav
+assets/outputs/*.mp4
+assets/mock/*.mp4
+
+# --- Local secrets / configuration ---
+.env
+.env.local
+*.log
+codex_review.txt
+codex_prompt.txt
