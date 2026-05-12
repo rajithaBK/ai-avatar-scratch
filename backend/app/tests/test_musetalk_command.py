@@ -56,6 +56,7 @@ def test_build_command_uses_v15_paths_and_required_flags(temp_assets, tmp_path: 
     # The v1.5 weights live in models/musetalkV15/.
     joined = " ".join(cmd)
     assert "musetalkV15" in joined and "unet.pth" in joined
+    assert "--batch_size" in cmd
 
 
 def test_build_command_v1_paths(temp_assets, tmp_path: Path):

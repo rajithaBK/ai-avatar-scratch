@@ -54,6 +54,8 @@ class JobStateResponse(BaseModel):
     message: str
     video_url: Optional[str] = None
     mode: Literal["real", "mock"]
+    # Full backend / subprocess detail when status == failed (not truncated).
+    error: Optional[str] = None
 
 
 __all__ = [

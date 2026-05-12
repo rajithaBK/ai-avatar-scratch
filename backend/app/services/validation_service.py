@@ -74,6 +74,19 @@ def validate_musetalk_setup(settings: Settings) -> Sequence[str]:
         problems.append(
             f"MuseTalk checkpoint directory not found at {settings.musetalk_checkpoint_dir}"
         )
+    else:
+        ck = settings.musetalk_checkpoint_dir
+        # VAE path used by MuseTalk `load_all_model` is always models/sd-vae (see musetalk/utils/utils.py).
+        for rel in (
+            "sd-vae/config.json",
+            "sd-vae/diffusion_pytorch_model.bin",
+            "whisper/config.json",
+            "face-parse-bisent/79999_iter.pth",
+            "face-parse-bisent/resnet18-5c106cde.pth",
+        ):
+            p = ck / rel
+            if not p.exists():
+                problems.append(f"Missing MuseTalk weight file (re-run weight download): {p}")
     return problems
 
 

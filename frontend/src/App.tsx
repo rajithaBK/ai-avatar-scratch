@@ -85,6 +85,7 @@ export default function App() {
         status: created.status,
         message: "queued",
         video_url: null,
+        error: null,
         // Use the mode echoed by the backend so we never flash "REAL"
         // on a mock-mode job.
         mode: created.mode,

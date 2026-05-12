@@ -11,6 +11,8 @@ export interface JobState {
   message: string;
   video_url: string | null;
   mode: "real" | "mock";
+  /** Full failure detail when status === "failed" (e.g. MuseTalk stderr). */
+  error?: string | null;
 }
 
 export interface CreateJobResponse {

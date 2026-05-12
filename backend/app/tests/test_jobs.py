@@ -84,3 +84,4 @@ def test_real_mode_fails_clearly_when_musetalk_missing(real_mode, client, monkey
     final = _wait_for_terminal(client, job_id, timeout=30.0)
     assert final["status"] == "failed", final
     assert "MuseTalk" in final["message"] or "musetalk" in final["message"].lower()
+    assert final.get("error"), "failed jobs should include full error text for debugging"

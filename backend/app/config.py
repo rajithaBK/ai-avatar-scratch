@@ -56,6 +56,7 @@ class Settings:
     musetalk_inference_script: Path
     musetalk_checkpoint_dir: Path
     musetalk_python: Optional[Path]
+    musetalk_batch_size: int
 
     mock_video_path: Path
 
@@ -106,6 +107,12 @@ def load_settings() -> Settings:
         if candidate.exists():
             musetalk_python = candidate
 
+    _bs = os.getenv("MUSETALK_BATCH_SIZE", "4").strip()
+    try:
+        musetalk_batch_size = max(1, min(32, int(_bs)))
+    except ValueError:
+        musetalk_batch_size = 4
+
     mock_video_path = _resolve_path(
         os.getenv("MOCK_VIDEO_PATH", "../assets/mock/mock_avatar.mp4"),
         assets_dir / "mock" / "mock_avatar.mp4",
@@ -129,6 +136,7 @@ def load_settings() -> Settings:
         musetalk_inference_script=musetalk_inference_script,
         musetalk_checkpoint_dir=musetalk_checkpoint_dir,
         musetalk_python=musetalk_python,
+        musetalk_batch_size=musetalk_batch_size,
         mock_video_path=mock_video_path,
     )
 

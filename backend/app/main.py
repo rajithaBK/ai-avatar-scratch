@@ -123,6 +123,7 @@ def create_app() -> FastAPI:
             message=job.message,
             video_url=job.video_url,
             mode="mock" if job.mode == "mock" else "real",
+            error=job.error,
         )
 
     @app.exception_handler(validation_service.ValidationError)
@@ -185,8 +186,8 @@ def _run_pipeline(job_id: str) -> None:
         # Include the first ~280 chars of the error so the UI can show
         # something actionable without dumping the whole subprocess log.
         summary = str(exc).strip()
-        if len(summary) > 280:
-            summary = summary[:277] + "..."
+        if len(summary) > 420:
+            summary = summary[:417] + "..."
         job.update(
             status="failed",
             message=f"MuseTalk failed: {summary}",

@@ -149,6 +149,8 @@ def build_command(
     if use_float16:
         cmd.append("--use_float16")
 
+    cmd += ["--batch_size", str(settings.musetalk_batch_size)]
+
     return cmd
 
 
