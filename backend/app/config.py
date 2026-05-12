@@ -5,10 +5,11 @@ repo root unless the env var is already absolute.
 """
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional  # noqa: F401  (used in dataclass annotations)
+from typing import Any, Optional  # noqa: F401  (used in dataclass annotations)
 
 try:
     # Loading is best-effort; the project still works without python-dotenv.
@@ -60,9 +61,28 @@ class Settings:
 
     mock_video_path: Path
 
+    #: Browser RTCPeerConnection ``iceServers`` entries (STUN/TURN). JSON array in env
+    #: ``WEBRTC_ICE_SERVERS``; see docs/TROUBLESHOOTING.md for tunnel setups.
+    webrtc_ice_servers: tuple[dict[str, Any], ...]
+
     @property
     def is_mock_mode(self) -> bool:
         return self.app_mode.lower() == "mock"
+
+
+def _load_webrtc_ice_servers() -> tuple[dict[str, Any], ...]:
+    """Parse ``WEBRTC_ICE_SERVERS`` JSON (RFC 5245 style objects) or use a STUN default."""
+
+    raw = os.getenv("WEBRTC_ICE_SERVERS", "").strip()
+    if not raw:
+        return ({"urls": "stun:stun.l.google.com:19302"},)
+    try:
+        data = json.loads(raw)
+        if isinstance(data, list) and data:
+            return tuple(d for d in data if isinstance(d, dict))
+    except json.JSONDecodeError:
+        pass
+    return ({"urls": "stun:stun.l.google.com:19302"},)
 
 
 def load_settings() -> Settings:
@@ -118,6 +138,8 @@ def load_settings() -> Settings:
         assets_dir / "mock" / "mock_avatar.mp4",
     )
 
+    webrtc_ice_servers = _load_webrtc_ice_servers()
+
     audio_dir.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -138,6 +160,7 @@ def load_settings() -> Settings:
         musetalk_python=musetalk_python,
         musetalk_batch_size=musetalk_batch_size,
         mock_video_path=mock_video_path,
+        webrtc_ice_servers=webrtc_ice_servers,
     )
 
 

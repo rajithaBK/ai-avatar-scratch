@@ -95,7 +95,7 @@ export function AvatarVideoCard({ job, errorMessage }: Props) {
               {job ? "Video will appear here when generation completes." : "Type a message and press Generate to begin."}
             </p>
             <p style={{ fontSize: 14, marginTop: 12, color: "var(--fg-1)" }}>
-              Webex Desk friendly · MP4 playback only · No HLS · No WebRTC
+              Webex Desk friendly · MP4 download · Optional WebRTC playback after render
             </p>
           </div>
         )}

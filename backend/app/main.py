@@ -4,6 +4,8 @@ Endpoints:
     GET  /api/health
     POST /api/jobs
     GET  /api/jobs/{job_id}
+    GET  /api/webrtc/config
+    WS   /api/webrtc/{job_id}
     GET  /outputs/<job_id>.mp4   (static)
 """
 from __future__ import annotations
@@ -14,7 +16,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -29,6 +31,7 @@ from .schemas import (
     JobStateResponse,
 )
 from .services import kokoro_service, musetalk_service, validation_service, video_service
+from .webrtc_signaling import handle_webrtc_socket
 
 logging.basicConfig(
     level=logging.INFO,
@@ -64,7 +67,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="AI Avatar Desk Demo Backend",
         version="0.1.0",
-        description="Text -> Kokoro WAV -> MuseTalk MP4 -> browser playback.",
+        description="Text -> Kokoro WAV -> MuseTalk MP4 -> browser playback (MP4 + optional WebRTC).",
         lifespan=lifespan,
     )
 
@@ -125,6 +128,17 @@ def create_app() -> FastAPI:
             mode="mock" if job.mode == "mock" else "real",
             error=job.error,
         )
+
+    @app.get("/api/webrtc/config")
+    async def webrtc_ice_config() -> dict:
+        """ICE server list for ``RTCPeerConnection`` in the browser (STUN/TURN)."""
+
+        s2 = _settings()
+        return {"iceServers": list(s2.webrtc_ice_servers)}
+
+    @app.websocket("/api/webrtc/{job_id}")
+    async def webrtc_signaling(websocket: WebSocket, job_id: str) -> None:
+        await handle_webrtc_socket(websocket, job_id)
 
     @app.exception_handler(validation_service.ValidationError)
     async def _on_validation(_, exc: validation_service.ValidationError):

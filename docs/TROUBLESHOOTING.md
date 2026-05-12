@@ -138,3 +138,38 @@ backend is running in `APP_MODE=mock` and the file is **not** a real
 MuseTalk render. Restart the backend with `APP_MODE=real` and ensure all
 the real-mode assets are in place; the API response also includes a
 `"mode"` field on every job (`"real"` or `"mock"`).
+
+## WebRTC stream fails or never connects
+
+The UI can play the finished MP4 two ways: classic ``<video src="/outputs/...">``
+or **WebRTC** (``Start WebRTC``), which streams the same on-disk file through
+aiortc after the job reaches ``completed``.
+
+1. **ICE / NAT / HTTPS tunnels**  
+   WebRTC needs working ICE (UDP and sometimes TCP). Browser and server must
+   be able to exchange RTP. If you only expose the app through an HTTP(S)
+   reverse proxy (for example a Cloudflare quick tunnel), **UDP host
+   candidates on a private Colab IP are often unreachable** from a user's
+   laptop. Configure a **TURN** relay via the ``WEBRTC_ICE_SERVERS`` environment
+   variable (JSON array in the same shape as
+   ``RTCPeerConnection``'s ``iceServers``). Example:
+
+   ```bash
+   export WEBRTC_ICE_SERVERS='[{"urls":"turn:turn.example.com:3478","username":"user","credential":"pass"}]'
+   ```
+
+2. **Dev server WebSocket proxy**  
+   When using Vite on port 3000 with the default proxy, ``/api`` upgrades must
+   reach uvicorn. The repo enables ``ws: true`` on the ``/api`` proxy so
+   ``/api/webrtc/{job_id}`` signaling works.
+
+3. **Job not completed**  
+   The WebSocket rejects jobs that are still ``queued`` / ``generating_*``.
+   Wait until the MP4 job shows **Completed**, then press **Start WebRTC**.
+
+4. **ffmpeg / PyAV**  
+   aiortc decodes the MP4 with PyAV/ffmpeg. The real MuseTalk path already
+   requires ffmpeg on the server PATH; keep that requirement in mind if you
+   strip dependencies. On **Windows**, PyAV may need **Microsoft C++ Build
+   Tools** to compile from source; use **Python 3.10–3.12** where prebuilt
+   wheels exist, or install the build toolchain.

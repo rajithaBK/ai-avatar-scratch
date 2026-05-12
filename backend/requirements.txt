@@ -21,3 +21,5 @@ Pillow==11.0.0
 # Kokoro 0.9.4 supports Python 3.10-3.12. If install fails on your platform,
 # see docs/TROUBLESHOOTING.md.
 kokoro==0.9.4
+# WebRTC signaling + MP4 streaming to the browser (see /api/webrtc/*).
+aiortc==1.9.0

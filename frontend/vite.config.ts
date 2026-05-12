@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
         "/api": {
           target: backend,
           changeOrigin: true,
+          ws: true,
         },
         "/outputs": {
           target: backend,
@@ -28,6 +29,7 @@ export default defineConfig(({ mode }) => {
         "/api": {
           target: backend,
           changeOrigin: true,
+          ws: true,
         },
         "/outputs": {
           target: backend,

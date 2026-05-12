@@ -29,6 +29,27 @@ function url(path: string): string {
   return BASE + path;
 }
 
+/** HTTP origin for the backend (no trailing slash), or browser origin when same-host. */
+export function apiOrigin(): string {
+  if (BASE) {
+    const trimmed = BASE.endsWith("/") ? BASE.slice(0, -1) : BASE;
+    return trimmed;
+  }
+  if (typeof window !== "undefined") {
+    return window.location.origin.replace(/\/$/, "");
+  }
+  return "";
+}
+
+/** WebSocket URL for a backend path (e.g. ``/api/webrtc/<id>``). */
+export function wsApiUrl(path: string): string {
+  const origin = apiOrigin();
+  const p = path.startsWith("/") ? path : `/${path}`;
+  const u = new URL(origin + p);
+  u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
+  return u.toString();
+}
+
 export async function getHealth(): Promise<{ status: string }> {
   const res = await fetch(url("/api/health"));
   if (!res.ok) throw new Error(`health failed: ${res.status}`);
@@ -55,6 +76,18 @@ export async function getJob(jobId: string): Promise<JobState> {
     throw new Error(`getJob failed (${res.status}): ${detail}`);
   }
   return res.json();
+}
+
+export type IceServerDict = Record<string, string | string[] | undefined>;
+
+export async function getWebRtcIceConfig(): Promise<IceServerDict[]> {
+  const res = await fetch(url("/api/webrtc/config"));
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`getWebRtcIceConfig failed (${res.status}): ${detail}`);
+  }
+  const data = (await res.json()) as { iceServers?: IceServerDict[] };
+  return Array.isArray(data.iceServers) ? data.iceServers : [];
 }
 
 /** Resolve a backend-relative path (like "/outputs/foo.mp4") to a full URL. */

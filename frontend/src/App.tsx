@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import TextInputPanel from "./components/TextInputPanel";
 import AvatarVideoCard from "./components/AvatarVideoCard";
+import WebRtcStreamCard from "./components/WebRtcStreamCard";
 import { createJob, getHealth, getJob, JobState } from "./lib/api";
 
 type Connection = "checking" | "ok" | "bad";
@@ -145,10 +146,12 @@ export default function App() {
         />
 
         <AvatarVideoCard job={job} errorMessage={error} />
+
+        <WebRtcStreamCard job={job} />
       </main>
 
       <footer className="footer">
-        Local pipeline: Kokoro TTS → MuseTalk → MP4 · No external APIs.
+        Local pipeline: Kokoro TTS → MuseTalk → MP4 · Optional WebRTC stream of the finished file · No cloud TTS APIs.
       </footer>
     </div>
   );
