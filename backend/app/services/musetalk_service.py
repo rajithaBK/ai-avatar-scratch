@@ -223,6 +223,10 @@ def run_inference(
         cmd_str = " ".join(map(_shquote, cmd))
         log.info("Running MuseTalk: %s", cmd_str)
 
+        # Colab sets MPLBACKEND=module://matplotlib_inline... for notebooks; that backend is
+        # invalid in a headless subprocess when mmpose→xtcocotools imports matplotlib.
+        subproc_env = {**os.environ, "MPLBACKEND": "Agg"}
+
         try:
             proc = subprocess.run(
                 cmd,
@@ -230,6 +234,7 @@ def run_inference(
                 capture_output=True,
                 text=True,
                 check=False,
+                env=subproc_env,
             )
         except FileNotFoundError as exc:
             raise MuseTalkError(
