@@ -9,6 +9,7 @@
     "preview": "vite preview --port 3000 --host",
     "start": "vite preview --port 3000 --host",
     "test:e2e": "playwright test",
+    "test:github-browser": "playwright test tests/manual_github_session.spec.ts",
     "test:install": "playwright install --with-deps chromium"
   },
   "dependencies": {
